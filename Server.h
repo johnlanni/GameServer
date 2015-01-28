@@ -8,6 +8,7 @@
 #include "IOServicePool.h"
 #include "DataBuffer.h"
 #include "Session.h"
+#include "GameLog.h"
 #define ROOM_CAPACITY 4
 #define MAX_CAPACITY 8
 

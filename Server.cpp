@@ -27,11 +27,9 @@ void Server::handle_accept(const system::error_code& err, Session_Ptr session) {
 		session->Close();
 		return;
 	}
-#ifndef NDEBUG	
 	using namespace std;
 	auto socket = &session->get_socket();
-	cout<<"一个新的用户连接： "<<socket->remote_endpoint().address()<<": "<<socket->remote_endpoint().port()<<endl;
-#endif
+	BOOST_LOG_TRIVIAL(info) << "一个新的用户连接:"<<socket->remote_endpoint().address()<<": "<<socket->remote_endpoint().port();
 	session->ReadPlayerInfo();
 }
 

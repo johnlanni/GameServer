@@ -20,8 +20,9 @@ void Session::Close() {
 	socket.shutdown(ip::tcp::socket::shutdown_both, ignored_ec);
 	socket.close(ignored_ec);
 	isclose = true;
+	BOOST_LOG_TRIVIAL(info) << "关闭了与玩家ID：" << u_id << "的连接";
 	if(ignored_ec) {
-		std::cout<<ignored_ec.message()<<std::endl;
+		BOOST_LOG_TRIVIAL(error)<<ignored_ec.message()<<std::endl;
 	}
 }
 
@@ -35,7 +36,7 @@ void Session::ReadPlayerInfo() {
 
 void Session::handle_read_player (const boost::system::error_code& err, size_t byte_transferred) {
 	if(err) {
-		std::cout<<err.message()<<std::endl;
+		BOOST_LOG_TRIVIAL(error) << "向玩家读取信息时出错：" << err.message();
 		Close();
 		return;
 	}
@@ -50,28 +51,43 @@ void Session::handle_read_player (const boost::system::error_code& err, size_t b
 	read_buf.Consume(byte_transferred);
 	if(room_id < 101 && room_id > 0) {
 		--room_id;
-		if(server->EnterRoom(game_type, room_id)) {//进入房间成功
-			WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
-			WriteHeartPackage();//开始发送心跳包
-		} else {
-			WriteRoomFail();//向客户端发送进入房间失败信息
+		try {
+			if(server->EnterRoom(game_type, room_id)) {//进入房间成功
+				BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "通过搜索房间号进入" << room_id + 1 << "号房间";
+				WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
+				WriteHeartPackage();//开始发送心跳包
+			} else {
+				BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "企图进入" << room_id + 1 << "号房间失败";
+				WriteRoomFail();//向客户端发送进入房间失败信息
+			}
+		} catch(std::exception& e) {
+			BOOST_LOG_TRIVIAL(warning) << "有用户发送了错误的房间号或者游戏类型：" << e.what();
+			WriteRoomFail();
 		}
 	} else if(room_id == 101) {
-		int room_capacity = static_cast<int>(data[6]);
-		Map map_type = static_cast<Map>(data[7]);
-		if(server->CreateRoom(game_type, room_id, room_capacity, map_type)) {//创建房间成功，设置房间参数，取得房间号
-			WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
-			WriteHeartPackage();//开始发送心跳包
-		} else {
-			WriteRoomFail();//向客户端发送进入房间失败信息
+		try {
+			int room_capacity = static_cast<int>(data[6]);
+			Map map_type = static_cast<Map>(data[7]);
+			if(server->CreateRoom(game_type, room_id, room_capacity, map_type)) {//创建房间成功，设置房间参数，取得房间号
+				BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "创建" << room_id + 1 << "号房间（" << "房间容量：" << room_capacity << "人)";
+				WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
+				WriteHeartPackage();//开始发送心跳包
+			} else {
+				BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "企图创建房间失败";
+				WriteRoomFail();//向客户端发送进入房间失败信息
+			}
+		} catch(std::exception& e) {
+			BOOST_LOG_TRIVIAL(warning) << "有用户发送了错误的游戏类型或没有空闲房间了：" << e.what();
+			WriteRoomFail();
 		}
 	} else if(room_id == 102){//快速加入
 		try {
 			while(!server->QuickEnter(game_type, room_id));//进入失败则重新执行快速加入，直至返回true
+			BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "通过快速加入进入" << room_id + 1 << "号房间";
 			WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
 			WriteHeartPackage();//开始发送心跳包
 		} catch (std::exception& e) {
-			std::cout<<e.what();
+			BOOST_LOG_TRIVIAL(warning) << "有用户快速加入失败，所有房间已满:" << e.what();
 			WriteRoomFail();//没有空闲房间了
 		}
 	}
@@ -115,6 +131,7 @@ void Session::WriteRoomSuccess() {
 			//向房间内所有客户端发送游戏开始信息
 			session->get_io_service().post(boost::bind(&Session::WriteGameStart, session));
 		}
+		BOOST_LOG_TRIVIAL(info) << room_id + 1 << "号房间人满开始游戏！";
 		WriteGameOver();//由本线程负责执行游戏定时结束任务，调度发送游戏结束信息
 	}
 	delete []data;
@@ -163,6 +180,7 @@ void Session::handle_close() {
 		//向对应客户端的写缓冲写更新信息（调用对应客户端的线程写）
 		session->get_io_service().post(boost::bind(&Session::WriteBuf_Shared, session, over_data, 1));
 	}
+	BOOST_LOG_TRIVIAL(info) << room_id + 1 << "号房间游戏结束，重置房间参数";
 	std::vector<boost::shared_ptr<Session>>().swap(r.playerlist);//清除房间列表内的玩家
 	//重置房间参数
 	r.capacity = 4;
@@ -200,6 +218,7 @@ void Session::Write() {
 
 void Session::handle_write(const boost::system::error_code& err, size_t byte_transferred) {
 	if(err) {
+		BOOST_LOG_TRIVIAL(error) << "向玩家ID：" << u_id << "发送数据时发现玩家已断开连接";
 		Close();
 		return;
 	}
@@ -217,6 +236,7 @@ void Session::Read() {
 
 void Session::handle_read_head(const boost::system::error_code& err, size_t byte_transferred) {
 	if(err) {
+		BOOST_LOG_TRIVIAL(error) << "向玩家ID：" << u_id << "读取数据时发现玩家已断开连接";
 		Close();
 		return;
 	}
@@ -265,7 +285,5 @@ Room& Session::GetRoom(){
 	case winner:
 		return server->winner_room[room_id];
 	case team://TODO
-	default:
-		throw std::invalid_argument("wrong type of game");
-	}
+	;}
 }

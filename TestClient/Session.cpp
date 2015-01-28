@@ -163,6 +163,11 @@ void Session::WriteJob() {
 	//srand(time(nullptr));
 	data[2] = rand() % 127;
 	WriteBuf(data, 3);
+	ofs << timestamp() << " 发送消息: ";
+	for(size_t i = 0; i < 3; ++i) {
+		ofs << (int)data[i] << "\t|";
+	}
+	ofs << std::endl;
 	if(!isclose) { //当socket没有断开时继续执行此定时任务，否则share_ptr将使得本对象不能被释放
 		gtimer.expires_from_now(boost::posix_time::milliseconds(500));//绑定本线程，每隔半秒发一次
 		gtimer.async_wait(boost::bind(&Session::WriteJob, this));
@@ -226,12 +231,6 @@ void Session::handle_write(const boost::system::error_code& err, size_t byte_tra
 		Close();
 		return;
 	}
-	ofs << timestamp() << " 发送消息: ";
-	const char* wd = write_buf.Peek();
-	for(size_t i = 0; i < byte_transferred; ++i) {
-		ofs << (int)wd[i] << "\t|";
-	}
-	ofs << std::endl;
 	write_buf.Consume(byte_transferred);
 	if(!write_buf.IsEmptyBuf())
 		Write();//当写缓冲区非空时，继续调用异步写

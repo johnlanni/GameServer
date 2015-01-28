@@ -6,6 +6,7 @@
 #include "DataBuffer.h"
 #include "Server.h"
 #include <memory>
+#include "GameLog.h"
 
 class Server;
 struct Room;
