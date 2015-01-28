@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="DataBuffer" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <NestedTypes>
+      <Typedef Name="DataBuffer::size_type" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DataBuffer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="DataBuffer::streambuf_type" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DataBuffer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="DataBuffer::const_buffers_type" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DataBuffer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="DataBuffer::mutable_buffers_type" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DataBuffer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAIAAAAIDAQEAAAAAAAAAAAAAAAAATAAAAAAAAAAABA=</HashCode>
+      <FileName>DataBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IOServicePool" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <NestedTypes>
+      <Typedef Name="IOServicePool::io_service_ptr" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>IOServicePool.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="IOServicePool::work_ptr" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>IOServicePool.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAACAAAAAAAAQAAAAAhAAAAAQAAAAAAAEA=</HashCode>
+      <FileName>IOServicePool.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Server" Collapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAQAAAAAAARAAEQAAAAAAACAAAAiAAEAE=</HashCode>
+      <FileName>Server.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Session" Collapsed="true">
+    <Position X="5.75" Y="1.25" Width="1.5" />
+    <NestedTypes>
+      <Typedef Name="Session::socket_type" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Session.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="Session::ios_type" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Session.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAggBgkAAIQIAAAgAQAYgEgCDhAAAAAEEAAHAYAI=</HashCode>
+      <FileName>Session.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Room" Collapsed="true">
+    <Position X="0.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAEEAAAAAAAAAAALIAAAAAAAAAAAAAAAAACAAAQAA=</HashCode>
+      <FileName>Server.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="Type" Collapsed="true">
+    <Position X="2.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAoAgACACAAAAAAAYAAIAAIAAAAAEAIA=</HashCode>
+      <FileName>DataBuffer.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Car" Collapsed="true">
+    <Position X="0.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataBuffer.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="CarImg" Collapsed="true">
+    <Position X="2.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataBuffer.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Map" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataBuffer.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="微软雅黑" Size="9" />
+</ClassDiagram>
