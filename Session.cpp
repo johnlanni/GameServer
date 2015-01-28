@@ -61,23 +61,19 @@ void Session::handle_read_player (const boost::system::error_code& err, size_t b
 				WriteRoomFail();//向客户端发送进入房间失败信息
 			}
 		} catch(std::exception& e) {
-			BOOST_LOG_TRIVIAL(warning) << "有用户发送了错误的房间号或者游戏类型：" << e.what();
+			BOOST_LOG_TRIVIAL(warning) << "玩家ID：" << u_id << "发送了错误的房间号或者游戏类型：" << e.what();
 			WriteRoomFail();
 		}
 	} else if(room_id == 101) {
 		try {
 			int room_capacity = static_cast<int>(data[6]);
 			Map map_type = static_cast<Map>(data[7]);
-			if(server->CreateRoom(game_type, room_id, room_capacity, map_type)) {//创建房间成功，设置房间参数，取得房间号
-				BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "创建" << room_id + 1 << "号房间（" << "房间容量：" << room_capacity << "人)";
-				WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
-				WriteHeartPackage();//开始发送心跳包
-			} else {
-				BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "企图创建房间失败";
-				WriteRoomFail();//向客户端发送进入房间失败信息
-			}
+			while(!server->CreateRoom(game_type, room_id, room_capacity, map_type)); //创建房间成功，设置房间参数，取得房间号
+			BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "创建" << room_id + 1 << "号房间（" << "房间容量：" << room_capacity << "人)";
+			WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
+			WriteHeartPackage();//开始发送心跳包
 		} catch(std::exception& e) {
-			BOOST_LOG_TRIVIAL(warning) << "有用户发送了错误的游戏类型或没有空闲房间了：" << e.what();
+			BOOST_LOG_TRIVIAL(warning) << "玩家ID：" << u_id << "发送了错误的游戏类型或没有空闲房间了：" << e.what();
 			WriteRoomFail();
 		}
 	} else if(room_id == 102){//快速加入
@@ -87,7 +83,7 @@ void Session::handle_read_player (const boost::system::error_code& err, size_t b
 			WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
 			WriteHeartPackage();//开始发送心跳包
 		} catch (std::exception& e) {
-			BOOST_LOG_TRIVIAL(warning) << "有用户快速加入失败，所有房间已满:" << e.what();
+			BOOST_LOG_TRIVIAL(warning) << "玩家ID：" << u_id << "快速加入失败，所有房间已满:" << e.what();
 			WriteRoomFail();//没有空闲房间了
 		}
 	}
@@ -285,5 +281,5 @@ Room& Session::GetRoom(){
 	case winner:
 		return server->winner_room[room_id];
 	case team://TODO
-	;}
+		;}
 }
