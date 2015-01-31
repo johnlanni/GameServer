@@ -19,7 +19,7 @@ struct Room {
 	//房间容量
 	int capacity;
 	//当前房间人数
-	int size;
+	std::atomic<int> size;
 	//房间地图
 	Map map;
 	//玩家成员列表
@@ -37,6 +37,9 @@ struct Room {
 		roomlock.clear(std::memory_order_relaxed);
 		listlock.clear(std::memory_order_relaxed);
 	}
+private:
+	Room(const Room&);
+	Room& operator=(const Room&);
 };
 
 class Server {

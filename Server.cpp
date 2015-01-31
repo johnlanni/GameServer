@@ -55,18 +55,28 @@ bool Server::CreateRoom(Type t, int& room_id, int room_capacity, Map map_type) {
 	if(i == 100) throw std::runtime_error("no empty room");
 	Room& r = (*room_arr)[i];
 	room_id = i;
-	while(r.roomlock.test_and_set(std::memory_order_acquire));//上锁
-	if(r.size != 0) {
-		r.roomlock.clear(std::memory_order_release);//解锁
+	//自旋锁版本
+	//while(r.roomlock.test_and_set(std::memory_order_acquire));//上锁
+	//if(r.size != 0) {
+	//	r.roomlock.clear(std::memory_order_release);//解锁
+	//	return false;
+	//} else { 
+	//	r.isempty = false;
+	//	++r.size;
+	//	r.map = map_type;
+	//	r.capacity = room_capacity;
+	//	r.roomlock.clear(std::memory_order_release);//解锁
+	//	return true;
+	//}
+	//CAS版本
+	int oldsize = 0;
+	if(!r.size.compare_exchange_strong(oldsize, 1))
 		return false;
-	} else { 
-		r.isempty = false;
-		++r.size;
-		r.map = map_type;
-		r.capacity = room_capacity;
-		r.roomlock.clear(std::memory_order_release);//解锁
-		return true;
-	}
+	r.isempty = false;
+	r.capacity = room_capacity;
+	r.map = map_type;
+	return true;
+
 }
 
 bool Server::EnterRoom(Type t, int room_id) {
@@ -85,20 +95,31 @@ bool Server::EnterRoom(Type t, int room_id) {
 	default:
 		throw std::invalid_argument("wrong type for game");
 	};
-	while(r->roomlock.test_and_set(std::memory_order_acquire));//上锁
-	if(r->size == r->capacity) {
-		r->roomlock.clear(std::memory_order_release);//解锁
-		return false;
-	} else { 
-		if(r->isempty)
-			r->isempty = false;
-		if(++r->size == r->capacity)
+	//自旋锁版本
+	//while(r->roomlock.test_and_set(std::memory_order_acquire));//上锁
+	//if(r->size == r->capacity) {
+	//	r->roomlock.clear(std::memory_order_release);//解锁
+	//	return false;
+	//} else { 
+	//	if(r->isempty)
+	//		r->isempty = false;
+	//	if(++r->size == r->capacity)
+	//		r->isfull = true;
+	//	r->roomlock.clear(std::memory_order_release);//解锁
+	//	return true;
+	//}
+	//CAS版本
+	int oldsize = r->size;
+	if(oldsize == 0) r->isempty = false;
+	do {
+		if(oldsize == r->capacity) {
 			r->isfull = true;
-		r->roomlock.clear(std::memory_order_release);//解锁
-		return true;
-	}
-
+			return false;
+		}
+	} while(!r->size.compare_exchange_weak(oldsize, oldsize + 1));
+	return true;
 }
+
 bool Server::QuickEnter(Type t, int& room_id) {
 	std::array<Room,100>* room_arr = nullptr;
 	switch(t) {
@@ -116,9 +137,8 @@ bool Server::QuickEnter(Type t, int& room_id) {
 
 	int min = MAX_CAPACITY + 1;
 	int i_min = 100;
-	Room room;
 	for(int i = 0; i < 100; ++i) {
-		room = (*room_arr)[i];
+		Room& room = (*room_arr)[i];
 		if(room.capacity - room.size < min && !room.isfull) {
 			min = room.capacity - room.size;
 			i_min = i;
@@ -128,18 +148,27 @@ bool Server::QuickEnter(Type t, int& room_id) {
 	if(room_id == 100)
 		throw std::runtime_error("all room are full");
 	Room& r = (*room_arr)[room_id];
-	while(r.roomlock.test_and_set(std::memory_order_acquire));//上锁
-	if(r.size == r.capacity) {
-		r.roomlock.clear(std::memory_order_release);//解锁
-		return false;
-	} else { 
-		if(r.isempty)
-			r.isempty = false;
-		if(++r.size == r.capacity)
+	//自旋锁版本
+	//while(r.roomlock.test_and_set(std::memory_order_acquire));//上锁
+	//if(r.size == r.capacity) {
+	//	r.roomlock.clear(std::memory_order_release);//解锁
+	//	return false;
+	//} else { 
+	//	if(r.isempty)
+	//		r.isempty = false;
+	//	if(++r.size == r.capacity)
+	//		r.isfull = true;
+	//	r.roomlock.clear(std::memory_order_release);//解锁
+	//	return true;
+	//}
+	//CAS版本
+	int oldsize = r.size;
+	if(oldsize == 0) r.isempty = false;
+	do {
+		if(oldsize == r.capacity) {
 			r.isfull = true;
-		r.roomlock.clear(std::memory_order_release);//解锁
-		return true;
-	}
-
-
+			return false;
+		}
+	} while(!r.size.compare_exchange_weak(oldsize, oldsize + 1));
+	return true;
 }
