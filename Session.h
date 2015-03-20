@@ -16,7 +16,7 @@ public:
 	typedef boost::asio::ip::tcp::socket socket_type;
 	typedef boost::asio::io_service ios_type;
 	//所属的服务器
-	static Server* server;
+	//static Server* server;
 	//构造函数
 	Session(ios_type& ios);
 	//获得socket
@@ -52,6 +52,8 @@ public:
 	//获得房间的引用
 	Room& GetRoom();
 private:
+	//所属的服务器
+	Server& server;
 	//玩家信息处理函数
 	void handle_read_player(const boost::system::error_code& err,
 		size_t byte_transferred);

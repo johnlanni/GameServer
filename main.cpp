@@ -34,8 +34,8 @@ void init() {
 
 int main() { 
 	init();
-	Server s(8384, 8);
-	Session::server = &s;
-	s.Start();
+	//Server s(8384, 8);
+	//Session::server = &s;
+	Server::get_server().Start();
 	BOOST_LOG_TRIVIAL(info) << "服务器开始运行";
 } 

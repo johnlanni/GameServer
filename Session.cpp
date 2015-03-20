@@ -11,9 +11,9 @@ using namespace boost::asio;
 char Byte[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
 //非常量静态成员变量必须在类外初始化
-Server* Session::server = nullptr;
+//Server* Session::server = nullptr;
 
-Session::Session(ios_type& ios) : socket(ios), isclose(false), dtimer(get_io_service()), gtimer(get_io_service()){}
+Session::Session(ios_type& ios) : socket(ios), isclose(false), dtimer(get_io_service()), gtimer(get_io_service()), server(Server::get_server()){}
 
 void Session::Close() {
 	boost::system::error_code ignored_ec;
@@ -52,7 +52,7 @@ void Session::handle_read_player (const boost::system::error_code& err, size_t b
 	if(room_id < 101 && room_id > 0) {
 		--room_id;
 		try {
-			if(server->EnterRoom(game_type, room_id)) {//进入房间成功
+			if(server.EnterRoom(game_type, room_id)) {//进入房间成功
 				BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "通过搜索房间号进入" << room_id + 1 << "号房间";
 				WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
 				WriteHeartPackage();//开始发送心跳包
@@ -68,7 +68,7 @@ void Session::handle_read_player (const boost::system::error_code& err, size_t b
 		try {
 			int room_capacity = static_cast<int>(data[6]);
 			Map map_type = static_cast<Map>(data[7]);
-			while(!server->CreateRoom(game_type, room_id, room_capacity, map_type)); //创建房间成功，设置房间参数，取得房间号
+			while(!server.CreateRoom(game_type, room_id, room_capacity, map_type)); //创建房间成功，设置房间参数，取得房间号
 			BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "创建" << room_id + 1 << "号房间（" << "房间容量：" << room_capacity << "人)";
 			WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
 			WriteHeartPackage();//开始发送心跳包
@@ -78,7 +78,7 @@ void Session::handle_read_player (const boost::system::error_code& err, size_t b
 		}
 	} else if(room_id == 102){//快速加入
 		try {
-			while(!server->QuickEnter(game_type, room_id));//进入失败则重新执行快速加入，直至返回true
+			while(!server.QuickEnter(game_type, room_id));//进入失败则重新执行快速加入，直至返回true
 			BOOST_LOG_TRIVIAL(info) << "玩家ID：" << u_id << "通过快速加入进入" << room_id + 1 << "号房间";
 			WriteRoomSuccess();//向客户端发送房间信息,以及更新信息
 			WriteHeartPackage();//开始发送心跳包
@@ -277,9 +277,9 @@ void Session::handle_read(const boost::system::error_code& err, size_t byte_tran
 Room& Session::GetRoom(){
 	switch(game_type) {
 	case bonus:
-		return server->bonus_room[room_id];
+		return server.bonus_room[room_id];
 	case winner:
-		return server->winner_room[room_id];
+		return server.winner_room[room_id];
 	case team://TODO
 		;}
 }

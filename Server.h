@@ -43,6 +43,10 @@ private:
 };
 
 class Server {
+private:
+	enum {ThreadAmount = 8, Port = 8384};
+	//构造函数，由n指定线程数
+	Server(unsigned short port = Port, int n = ThreadAmount);
 public:
 	typedef boost::asio::ip::tcp::acceptor acceptor_type;
 	typedef boost::shared_ptr<Session> Session_Ptr;
@@ -54,9 +58,10 @@ public:
 	void start_accept();
 	//accept的异步处理函数
 	void handle_accept(const boost::system::error_code& err, Session_Ptr session);
-public:
 	//构造函数，由n指定线程数
-	Server(unsigned short port, int n = 1);
+	//Server(unsigned short port, int n = 1);
+	//使用单例模式进行构造
+	inline static Server& get_server() { static Server s; return s;}
 	//启动服务器
 	inline void Start() { ios_pool.run();}
 	//创建指定类型的房间，引用类型的参数赋值为房间号
