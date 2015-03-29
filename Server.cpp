@@ -1,6 +1,6 @@
 #include "Server.h"
+#include "Session.h"
 #include <boost/bind.hpp>
-#include <boost/functional/factory.hpp>
 #include <algorithm>
 #include <iostream>
 using namespace boost;
@@ -14,7 +14,7 @@ Server::Server(unsigned short port, int n):
 }
 
 void Server::start_accept() {
-	Session_Ptr session = boost::make_shared<Session>(ios_pool.get_io_service());
+	Session_Ptr session = std::make_shared<Session>(ios_pool.get_io_service());
 	acceptor.async_accept(session->get_socket(),
 		boost::bind(&Server::handle_accept, this, placeholders::error, session));
 }

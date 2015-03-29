@@ -1,17 +1,14 @@
 #ifndef _SESSION_H_
 #define _SESSION_H_
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/smart_ptr.hpp>
 #include <boost/asio.hpp>
 #include "DataBuffer.h"
-#include "Server.h"
 #include <memory>
 #include "GameLog.h"
 
 class Server;
 struct Room;
 
-class Session : public boost::enable_shared_from_this<Session> {
+class Session : public std::enable_shared_from_this<Session> {
 public:
 	typedef boost::asio::ip::tcp::socket socket_type;
 	typedef boost::asio::io_service ios_type;

@@ -1,13 +1,11 @@
 #ifndef _SERVER_H_
 #define _SERVER_H_
-#include <boost/smart_ptr.hpp>
 #include <atomic>
 #include <vector>
 #include <array>
 #include <iostream>
 #include "IOServicePool.h"
 #include "DataBuffer.h"
-#include "Session.h"
 #include "GameLog.h"
 #define ROOM_CAPACITY 4
 #define MAX_CAPACITY 8
@@ -15,7 +13,7 @@
 class Session;
 
 struct Room {
-	typedef boost::shared_ptr<Session> Session_Ptr;
+	typedef std::shared_ptr<Session> Session_Ptr;
 	//房间容量
 	int capacity;
 	//当前房间人数
@@ -49,7 +47,7 @@ private:
 	Server(unsigned short port = Port, int n = ThreadAmount);
 public:
 	typedef boost::asio::ip::tcp::acceptor acceptor_type;
-	typedef boost::shared_ptr<Session> Session_Ptr;
+	typedef std::shared_ptr<Session> Session_Ptr;
 	std::array<Room, 100> bonus_room;
 	std::array<Room, 100> winner_room;
 	IOServicePool ios_pool;

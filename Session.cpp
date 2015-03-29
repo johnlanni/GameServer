@@ -1,4 +1,5 @@
 #include "Session.h"
+#include "Server.h"
 #include <iostream>
 #include <string>
 #include <boost/bind.hpp>
@@ -177,7 +178,7 @@ void Session::handle_close() {
 		session->get_io_service().post(boost::bind(&Session::WriteBuf_Shared, session, over_data, 1));
 	}
 	BOOST_LOG_TRIVIAL(info) << room_id + 1 << "号房间游戏结束，重置房间参数";
-	std::vector<boost::shared_ptr<Session>>().swap(r.playerlist);//清除房间列表内的玩家
+	std::vector<std::shared_ptr<Session>>().swap(r.playerlist);//清除房间列表内的玩家
 	//重置房间参数
 	r.capacity = 4;
 	r.size = 0;
